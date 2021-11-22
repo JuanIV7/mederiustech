@@ -1,0 +1,71 @@
+@route('/change-password')
+@route('/change-password', method='POST')
+def changepassword():
+    if len(request.POST) == 0:
+                error1 = 0
+                error2 = 0
+                error3 = 0
+                error4 = 0
+                contra = 0
+                return template('templates/olvidar-contra.html', error1 = error1, error2 = error2, error3 = error3, error4 = error4, contra = contra)
+    else:
+        conn = sqlite3.connect('datos.db')
+        cursor = conn.cursor()
+        a = request.POST['username'];
+        b = request.POST['password'];
+        c = request.POST['pregunta'];
+        d = request.POST['password2'];
+        
+        if len(a) and len(b) and len(c) and len(d):
+            consulta_verificacion = f"select user from usuarios where user = '{a}';"
+            consulta_verif = cursor.execute(f"select pregunta from usuarios where user = '{a}';")
+            consulta_verificacion2=""
+            
+            if len(tuple(conn.execute(consulta_verificacion))):
+                consulta_verificacion2=(consulta_verif.fetchone())[0]
+                
+            if len(tuple(conn.execute(consulta_verificacion))) and c == consulta_verificacion2 and b == d:
+            
+                conn.execute(f"UPDATE usuarios SET pass='{b}' WHERE user = '{a}'")
+                conn.commit()
+                conn.close()
+                
+                error1 = 0
+                error2 = 0
+                error3 = 0
+                error4 = 0
+                contra = 1
+                return template('templates/olvidar-contra.html', error1 = error1, error2 = error2, error3 = error3, error4 = error4, contra = contra)
+            
+            elif len(tuple(conn.execute(consulta_verificacion)))==0:
+                
+                error1 = 1
+                error2 = 0
+                error3 = 0
+                error4 = 0
+                contra = 0
+                return template('templates/olvidar-contra.html', error1 = error1, error2 = error2, error3 = error3, error4 = error4, contra = contra)
+                
+            elif c != consulta_verificacion2:
+                error1 = 0
+                error2 = 1
+                error3 = 0
+                error4 = 0
+                contra = 0
+                return template('templates/olvidar-contra.html', error1 = error1, error2 = error2, error3 = error3, error4 = error4, contra = contra)
+            
+            elif b != d:
+                error1 = 0
+                error2 = 0
+                error3 = 0
+                error4 = 1
+                contra = 0
+                return template('templates/olvidar-contra.html', error1 = error1, error2 = error2, error3 = error3, error4 = error4, contra = contra)
+    
+        else:
+            error1 = 0
+            error2 = 0
+            error3 = 1
+            error4 = 0
+            contra = 0
+            return template('templates/olvidar-contra.html', error1 = error1, error2 = error2, error3 = error3, error4 = error4, contra = contra)
